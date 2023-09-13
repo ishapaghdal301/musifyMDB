@@ -4,7 +4,8 @@ import 'package:audioplayers/audioplayers.dart';
 import 'dart:async';
 
 class MusicPage extends StatefulWidget {
-  const MusicPage({super.key});
+  final dynamic user;
+  const MusicPage({super.key,required this.user});
 
   @override
   State<MusicPage> createState() => _MusicPageState();
@@ -82,7 +83,10 @@ class _MusicPageState extends State<MusicPage> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       InkWell(
-                        onTap: () {
+                        onTap: () async{
+                          if (isPlaying) {
+                                    await audioPlayer.pause();
+                                  }
                           Navigator.pop(context);
                         },
                         child: Icon(
@@ -139,10 +143,13 @@ class _MusicPageState extends State<MusicPage> {
                                   ),
                                 ],
                               ),
-                              Icon(
-                                Icons.favorite,
-                                color: Colors.redAccent,
-                                size: 35,
+                              InkWell(
+                                onTap: () => {},
+                                child: Icon(
+                                  Icons.favorite,
+                                  color: Colors.redAccent,
+                                  size: 35,
+                                ),
                               ),
                             ],
                           ),

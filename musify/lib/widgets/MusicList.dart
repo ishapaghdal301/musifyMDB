@@ -3,6 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 class MusicList extends StatefulWidget {
+  final dynamic user; 
+
+  MusicList({required this.user});
+
   @override
   _MusicListState createState() => _MusicListState();
 }
@@ -18,7 +22,7 @@ class _MusicListState extends State<MusicList> {
 
   Future<void> fetchData() async {
     var response = await http.get(
-      Uri.parse('http://192.168.1.198:3000/user/getsongs'),
+      Uri.parse('http:// 192.168.1.198:3000/user/getsongs'),
       headers: {"Content-type": "application/json"},
     );
 
@@ -52,7 +56,8 @@ class _MusicListState extends State<MusicList> {
                   children: [
                     InkWell(
                       onTap: () {
-                        Navigator.pushNamed(context, "musicPage");
+                        Navigator.pushNamed(context, "musicPage",
+                            arguments: item);
                       },
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(10),

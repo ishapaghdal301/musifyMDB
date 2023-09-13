@@ -11,7 +11,7 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var username = user['username'];
+    // var username = user['username'];
     return DefaultTabController(
       length: 6,
       child: Container(
@@ -143,12 +143,12 @@ class HomePage extends StatelessWidget {
                       Flexible(
                         flex: 1,
                         child: TabBarView(children: [
-                          MusicList(),
+                          MusicList(user: user),
                           PlayList(),
-                          MusicList(),
-                          MusicList(),
-                          MusicList(),
-                          MusicList(),
+                          MusicList(user: user),
+                          MusicList(user: user),
+                          MusicList(user: user),
+                          MusicList(user: user),
 
                       ],))
                   ],

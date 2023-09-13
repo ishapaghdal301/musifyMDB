@@ -1,15 +1,9 @@
-// import 'package:firebase_auth/firebase_auth.dart';
-// import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'home_screen.dart';
 import 'signup_screen.dart';
 
-import 'dart:convert';
-// import 'dart:html';
-// import 'package:tastybites/signup.dart';
-
-// import 'main.dart';
+import 'dart:convert'; // Keep this import for JSON encoding/decoding.
 
 class SignInScreen extends StatefulWidget {
   const SignInScreen({Key? key}) : super(key: key);
@@ -21,6 +15,7 @@ class SignInScreen extends StatefulWidget {
 class _SignInScreenState extends State<SignInScreen> {
   TextEditingController _passwordTextController = TextEditingController();
   TextEditingController _emailTextController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -44,20 +39,23 @@ class _SignInScreenState extends State<SignInScreen> {
                   cursorColor: Colors.white,
                   style: TextStyle(color: Colors.white.withOpacity(0.9)),
                   decoration: InputDecoration(
-                      prefixIcon: const Icon(
-                        Icons.person_outline,
-                        color: Colors.white70,
+                    prefixIcon: const Icon(
+                      Icons.person_outline,
+                      color: Colors.white70,
+                    ),
+                    labelText: 'Enter Username',
+                    labelStyle: TextStyle(color: Colors.white.withOpacity(0.9)),
+                    filled: true,
+                    floatingLabelBehavior: FloatingLabelBehavior.never,
+                    fillColor: Colors.white.withOpacity(0.3),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(30.0),
+                      borderSide: const BorderSide(
+                        width: 0,
+                        style: BorderStyle.none,
                       ),
-                      labelText: 'Enter Username',
-                      labelStyle:
-                          TextStyle(color: Colors.white.withOpacity(0.9)),
-                      filled: true,
-                      floatingLabelBehavior: FloatingLabelBehavior.never,
-                      fillColor: Colors.white.withOpacity(0.3),
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(30.0),
-                          borderSide: const BorderSide(
-                              width: 0, style: BorderStyle.none))),
+                    ),
+                  ),
                   keyboardType: TextInputType.emailAddress,
                 ),
                 const SizedBox(
@@ -71,20 +69,23 @@ class _SignInScreenState extends State<SignInScreen> {
                   cursorColor: Colors.white,
                   style: TextStyle(color: Colors.white.withOpacity(0.9)),
                   decoration: InputDecoration(
-                      prefixIcon: const Icon(
-                        Icons.lock_outline,
-                        color: Colors.white70,
+                    prefixIcon: const Icon(
+                      Icons.lock_outline,
+                      color: Colors.white70,
+                    ),
+                    labelText: 'Enter Password',
+                    labelStyle: TextStyle(color: Colors.white.withOpacity(0.9)),
+                    filled: true,
+                    floatingLabelBehavior: FloatingLabelBehavior.never,
+                    fillColor: Colors.white.withOpacity(0.3),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(30.0),
+                      borderSide: const BorderSide(
+                        width: 0,
+                        style: BorderStyle.none,
                       ),
-                      labelText: 'Enter Password',
-                      labelStyle:
-                          TextStyle(color: Colors.white.withOpacity(0.9)),
-                      filled: true,
-                      floatingLabelBehavior: FloatingLabelBehavior.never,
-                      fillColor: Colors.white.withOpacity(0.3),
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(30.0),
-                          borderSide: const BorderSide(
-                              width: 0, style: BorderStyle.none))),
+                    ),
+                  ),
                   keyboardType: TextInputType.visiblePassword,
                 ),
                 const SizedBox(
@@ -94,8 +95,9 @@ class _SignInScreenState extends State<SignInScreen> {
                   width: MediaQuery.of(context).size.width,
                   height: 50,
                   margin: const EdgeInsets.fromLTRB(0, 10, 0, 20),
-                  decoration:
-                      BoxDecoration(borderRadius: BorderRadius.circular(90)),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(90),
+                  ),
                   child: ElevatedButton(
                     onPressed: () async {
                       if (_emailTextController.text.isNotEmpty &&
@@ -106,42 +108,46 @@ class _SignInScreenState extends State<SignInScreen> {
                         };
 
                         var response = await http.post(
-                            Uri.parse('http://192.168.1.198:3000/user/login'),
-                            headers: {"Content-type": "application/json"},
-                            body: jsonEncode(reqbody));
+                          Uri.parse('http:// 192.168.1.198:3000/user/login'), // Replace with your API URL
+                          headers: {
+                            "Content-type": "application/json",
+                          },
+                          body: jsonEncode(reqbody),
+                        );
 
                         if (response.statusCode == 201) {
                           var res = jsonDecode(response.body);
                           print(res['user']);
                           Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) =>
-                                      HomeScreen(user: res['user'])));
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  HomeScreen(user: res['user']),
+                            ),
+                          );
+                        } else {
+                          var res = jsonDecode(response.body);
+                          print(res['error']);
                         }
-                        // FirebaseAuth.instance.signInWithEmailAndPassword(email: _emailTextController.text,
-                        //     password: _passwordTextController.text).then((value) {
-                        // Navigator.push(context, MaterialPageRoute(builder: (context) => HomeScreen()));
-                        // }).onError((error, stackTrace) {
-                        //   print('Error ${error.toString()}');
-                        // });
-                      } else {}
+                      }
                     },
                     style: ButtonStyle(
-                      backgroundColor:
-                          MaterialStateProperty.resolveWith((states) {
-                        if (states.contains(MaterialState.pressed)) {
-                          return Colors.lightGreenAccent;
-                        }
-                        return Colors.green;
-                      }),
+                      backgroundColor: MaterialStateProperty.resolveWith(
+                        (states) {
+                          if (states.contains(MaterialState.pressed)) {
+                            return Colors.lightGreenAccent;
+                          }
+                          return Colors.green;
+                        },
+                      ),
                     ),
                     child: const Text(
                       'LOG IN',
                       style: TextStyle(
-                          color: Colors.black87,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16),
+                        color: Colors.black87,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
                     ),
                   ),
                 ),
@@ -152,7 +158,7 @@ class _SignInScreenState extends State<SignInScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const Text(
-                      "Dont't have an account?",
+                      "Don't have an account?",
                       style: TextStyle(color: Colors.white70),
                     ),
                     GestureDetector(

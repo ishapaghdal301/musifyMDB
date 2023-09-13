@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:musify/screens/MusicPage.dart';
-import 'package:musify/screens/signin_screen.dart';
-
 import 'HomePage.dart';
 import 'PlayListPage.dart';
 
@@ -33,7 +31,7 @@ class _HomeScreenState extends State<HomeScreen> {
       routes: {
         "/":(context) => HomePage(user: widget.user),
         "playlistPage" : (context) => PlayListPage(),
-        "musicPage" : (context) => MusicPage(),
+        "musicPage" : (context) => MusicPage(user: widget.user),
       }
     );
   }
