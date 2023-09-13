@@ -5,7 +5,7 @@ const Song = require('./model/Song');
 
 router.post("/register", async (req, res) => {
     try {
-        console.log(req.body);
+        // console.log(req.body);
         
         const { username, password , email } = req.body;
         // const hashedPassword = await bcrypt.hash(password, 10); // Hash the password

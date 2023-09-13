@@ -2,7 +2,7 @@
 // import 'package:firebase_core/firebase_core.dart';
 // import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:convert';
-import 'dart:html';
+// import 'dart:html';
 
 import 'package:flutter/material.dart';
 import 'package:musify/screens/home_screen.dart';
@@ -149,7 +149,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         };
 
                         var response = await http.post(
-                            Uri.parse('http://localhost:3000/user/register'),
+                            Uri.parse('http://192.168.1.198:3000/user/register'),
                             headers: {"Content-type": "application/json"},
                             body: jsonEncode(reqbody));
 

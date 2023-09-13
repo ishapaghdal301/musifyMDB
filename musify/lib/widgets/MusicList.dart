@@ -18,7 +18,7 @@ class _MusicListState extends State<MusicList> {
 
   Future<void> fetchData() async {
     var response = await http.get(
-      Uri.parse('http://localhost:3000/user/getsongs'),
+      Uri.parse('http://192.168.1.198:3000/user/getsongs'),
       headers: {"Content-type": "application/json"},
     );
 
