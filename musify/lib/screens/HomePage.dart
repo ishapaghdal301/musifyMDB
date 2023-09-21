@@ -3,6 +3,8 @@ import 'package:musify/screens/signin_screen.dart';
 import 'package:musify/widgets/FavouriteList.dart';
 import 'package:musify/widgets/MusicList.dart';
 import 'package:musify/widgets/PlayList.dart';
+import 'package:musify/widgets/NewSongList.dart';
+import 'package:musify/widgets/TreandingList.dart';
 
 
 class HomePage extends StatelessWidget {
@@ -146,8 +148,8 @@ class HomePage extends StatelessWidget {
                           MusicList(user: user),
                           PlayList(user: user),
                           FavouriteList(user: user),
-                          MusicList(user: user),
-                          MusicList(user: user),
+                          NewSongList(user: user),
+                          TreandingList(user: user),
 
                       ],))
                   ],

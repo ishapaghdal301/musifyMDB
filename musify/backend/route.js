@@ -155,22 +155,20 @@ router.post("/isfavourite", async (req, res) =>{
 
 });
 
-// Endpoint to get new songs (filter by release date)
 router.get('/newsongs', async (req, res) => {
   try {
-    const newSongs = await Song.find({}).sort({ releaseDate: -1 }).limit(10); // Sort by release date
-    res.status(200).json({song : newSongs});
+    const newSongs = await Song.find({}).sort({ releaseDate: -1 }).limit(10);
+    res.status(200).json({songs : newSongs});
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Internal server error' });
   }
 });
 
-// Endpoint to get trending songs (filter by trending score)
 router.get('/trendingsongs', async (req, res) => {
   try {
     const trendingSongs = await Song.find({}).sort({ trendingScore: -1 }).limit(10); // Sort by trending score
-    res.status(200).json({song : trendingSongs});
+    res.status(200).json({songs : trendingSongs});
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Internal server error' });
