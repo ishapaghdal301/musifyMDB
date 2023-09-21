@@ -16,21 +16,10 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      // body: Center(
-      //   child: ElevatedButton(
-      //     onPressed: () {
-      //       FirebaseAuth.instance.signOut().then((value) {
-      //            print("Signout"); 
-      //            Navigator.push(context, MaterialPageRoute(builder: (context) => SignInScreen()));
-      //      });   
-      //     },
-      //     child: Text("Logout"),
-      //   ),
-      // ),
       debugShowCheckedModeBanner: false,
       routes: {
         "/":(context) => HomePage(user: widget.user),
-        "playlistPage" : (context) => PlayListPage(),
+        "playlistPage" : (context) => PlayListPage(user: widget.user),
         "musicPage" : (context) => MusicPage(user: widget.user),
       }
     );

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'home_screen.dart';
 import 'signup_screen.dart';
+import '../db/config.dart';
 
 import 'dart:convert'; // Keep this import for JSON encoding/decoding.
 
@@ -108,7 +109,7 @@ class _SignInScreenState extends State<SignInScreen> {
                         };
 
                         var response = await http.post(
-                          Uri.parse('http:// 192.168.1.198:3000/user/login'), // Replace with your API URL
+                          Uri.parse('$uri/user/login'), // Replace with your API URL
                           headers: {
                             "Content-type": "application/json",
                           },

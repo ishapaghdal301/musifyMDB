@@ -2,7 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class PlayListPage extends StatelessWidget {
-  const PlayListPage({super.key});
+  final dynamic user;
+  const PlayListPage({super.key,required this.user});
 
   @override
   Widget build(BuildContext context) {

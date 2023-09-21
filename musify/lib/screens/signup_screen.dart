@@ -1,8 +1,9 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-// import 'package:musicmaster/screens/home_screen.dart';
+// import 'package:musify/screens/home_screen.dart';
 import 'package:http/http.dart' as http;
 import 'package:musify/screens/signin_screen.dart';
+import '../db/config.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({Key? key}) : super(key: key);
@@ -154,7 +155,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         };
 
                         var response = await http.post(
-                          Uri.parse('http:// 192.168.1.198:3000/user/register'),
+                          Uri.parse('$uri/user/register'),
                           headers: {
                             "Content-type": "application/json",
                           },
@@ -162,6 +163,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         );
 
                         if (response.statusCode == 201) {
+                          // ignore: use_build_context_synchronously
                           Navigator.push(
                             context,
                             MaterialPageRoute(

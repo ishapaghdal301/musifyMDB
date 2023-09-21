@@ -2,10 +2,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'dart:async';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import '../db/config.dart';
 
 class MusicPage extends StatefulWidget {
   final dynamic user;
-  const MusicPage({super.key,required this.user});
+  const MusicPage({super.key, required this.user});
 
   @override
   State<MusicPage> createState() => _MusicPageState();
@@ -16,12 +19,11 @@ class _MusicPageState extends State<MusicPage> {
   Duration duration = new Duration();
   Duration position = Duration();
   bool isPlaying = false;
+  bool isFavourite = false;
   Timer? timer;
-
   @override
   void initState() {
     super.initState();
-
     // Listen for audio player state changes
     audioPlayer.onDurationChanged.listen((d) {
       setState(() {
@@ -33,9 +35,39 @@ class _MusicPageState extends State<MusicPage> {
     timer = Timer.periodic(Duration(seconds: 1), (timer) async {
       final currentPosition = await audioPlayer.getCurrentPosition();
       setState(() {
-        position = currentPosition ?? Duration(); // Use Duration() as a default value
+        position =
+            currentPosition ?? Duration(); // Use Duration() as a default value
       });
     });
+
+    // var reqbody = {
+    //   "songId": item['_id'],
+    //   "userId": widget.user['_id'],
+    // };
+    // var response = await http.post(
+    //   Uri.parse('http://localhost:3000/user/isfavourite'),
+    //   headers: {
+    //     "Content-type": "application/json",
+    //   },
+    //   body: jsonEncode(reqbody),
+    // );
+
+    // if (response.statusCode == 201) {
+    //   print("updated");
+    //   var res = jsonDecode(response.body);
+    //   if (res['isFavourite'] == true) {
+    //     setState(() {
+    //       isFavourite = true;
+    //     });
+    //   } else {
+    //     setState(() {
+    //       isFavourite = false;
+    //     });
+    //   }
+    // } else {
+    //   var res = jsonDecode(response.body);
+    //   print(res['error']);
+    // }
   }
 
   @override
@@ -47,8 +79,10 @@ class _MusicPageState extends State<MusicPage> {
 
   @override
   Widget build(BuildContext context) {
-    final item =
+    final arguments =
         ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>;
+    final item = arguments['item'];
+   // isFavourite = arguments['isFavourite'] ?? false;
 
     return Container(
       decoration: BoxDecoration(
@@ -83,10 +117,10 @@ class _MusicPageState extends State<MusicPage> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       InkWell(
-                        onTap: () async{
+                        onTap: () async {
                           if (isPlaying) {
-                                    await audioPlayer.pause();
-                                  }
+                            await audioPlayer.pause();
+                          }
                           Navigator.pop(context);
                         },
                         child: Icon(
@@ -144,10 +178,42 @@ class _MusicPageState extends State<MusicPage> {
                                 ],
                               ),
                               InkWell(
-                                onTap: () => {},
+                                onTap: () async {
+                                  var reqbody = {
+                                    "songId": item['_id'],
+                                    "userId": widget.user['_id'],
+                                  };
+
+                                  var response = await http.post(
+                                    Uri.parse('$uri/user/addfavourite'),
+                                    headers: {
+                                      "Content-type": "application/json",
+                                    },
+                                    body: jsonEncode(reqbody),
+                                  );
+
+                                  if (response.statusCode == 201) {
+                                    print("updated");
+                                    var res = jsonDecode(response.body);
+                                    if (res['isFavourite'] == true) {
+                                      setState(() {
+                                        isFavourite = true;
+                                      });
+                                    } else {
+                                      setState(() {
+                                        isFavourite = false;
+                                      });
+                                    }
+                                  } else {
+                                    var res = jsonDecode(response.body);
+                                    print(res['error']);
+                                  }
+                                },
                                 child: Icon(
                                   Icons.favorite,
-                                  color: Colors.redAccent,
+                                  color: isFavourite
+                                      ? Colors.redAccent
+                                      : Colors.white,
                                   size: 35,
                                 ),
                               ),

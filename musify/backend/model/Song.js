@@ -4,7 +4,10 @@ const songSchema = new mongoose.Schema({
     title : String,
     singer : String,
     url : String,
-    imageUrl : String
+    imageUrl : String,
+    releaseDate: Date, 
+    trendingScore: Number, 
 });
 
-module.exports = mongoose.model('Song', songSchema);
+mongoose.model('Songs', songSchema);
+module.exports = mongoose.model('Songs');

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 
 class PlayList extends StatelessWidget {
-  const PlayList({super.key});
+  final dynamic user; 
 
+  PlayList({required this.user});
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
