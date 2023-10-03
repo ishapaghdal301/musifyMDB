@@ -1,16 +1,47 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import '../db/config.dart';
+import 'dart:convert';
 
-class PlayList extends StatelessWidget {
-  final dynamic user; 
+class PlayList extends StatefulWidget {
+  final dynamic user;
 
   PlayList({required this.user});
+
+  @override
+  State<PlayList> createState() => _PlayListState();
+}
+
+class _PlayListState extends State<PlayList> {
+  List<dynamic> playlists = [];
+
+  @override
+  void initState() {
+    super.initState();
+    fetchData();
+  }
+
+  Future<void> fetchData() async {
+    var reqbody = {"userId": widget.user['_id']};
+    var response = await http.post(
+      Uri.parse('$uri/user/fetchplaylist'),
+      headers: {"Content-type": "application/json"},
+      body: jsonEncode(reqbody),
+    );
+
+    var res = jsonDecode(response.body);
+    setState(() {
+      playlists = res['playlists'];
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
         child: Column(
       children: [
-        for (int i = 1; i < 20; i++)
-          Container(
+        ...playlists.map((playlist) {
+          return Container(
             margin: EdgeInsets.only(top: 20, right: 20, left: 5),
             padding: EdgeInsets.all(15),
             decoration: BoxDecoration(
@@ -21,7 +52,9 @@ class PlayList extends StatelessWidget {
               children: [
                 InkWell(
                   onTap: () {
-                    Navigator.pushNamed(context, "playlistPage");
+                    Navigator.pushNamed(context, "playlistPage" ,arguments: {
+                                "playlist" : playlist
+                              },);
                   },
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(10),
@@ -40,7 +73,7 @@ class PlayList extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "Imagine Dragons",
+                      playlist['playlistName'],
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 20,
@@ -51,7 +84,7 @@ class PlayList extends StatelessWidget {
                       height: 5,
                     ),
                     Text(
-                      "30 Songs",
+                      playlist['songs'].length.toString() +" song",
                       style: TextStyle(
                         color: Colors.white.withOpacity(0.5),
                         fontSize: 16,
@@ -67,7 +100,8 @@ class PlayList extends StatelessWidget {
                 )
               ],
             ),
-          )
+          );
+        })
       ],
     ));
   }

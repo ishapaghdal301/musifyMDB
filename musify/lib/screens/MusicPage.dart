@@ -21,6 +21,188 @@ class _MusicPageState extends State<MusicPage> {
   bool isPlaying = false;
   bool isFavourite = false;
   Timer? timer;
+
+  Future<void> _showAddToPlaylistDialog(SongId) async {
+    List<dynamic> playlists = [];
+    var reqbody = {"userId": widget.user['_id']};
+
+    var response = await http.post(
+      Uri.parse('$uri/user/fetchplaylist'),
+      headers: {
+        "Content-type": "application/json",
+      },
+      body: jsonEncode(reqbody),
+    );
+
+    if (response.statusCode == 201) {
+      var res = jsonDecode(response.body);
+      playlists = res['playlists'];
+    } else {
+      var res = jsonDecode(response.body);
+      print(res['error']);
+    }
+    return showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Add to Playlist'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Option to create a new playlist
+              ListTile(
+                title: Text('Create New Playlist'),
+                onTap: () {
+                  // Handle creating a new playlist
+                  Navigator.pop(context);
+                  _showCreatePlaylistDialog(SongId);
+                },
+              ),
+              Divider(),
+              // Option to add to existing playlists
+              ...playlists.map((playlist) {
+                return ListTile(
+                  title: Text(playlist['playlistName']),
+                  onTap: () {
+                    // Handle adding the song to the selected playlist
+                    Navigator.pop(context);
+                    _addToExistingPlaylist(playlist,SongId);
+                  },
+                );
+              }),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _showCreatePlaylistDialog(SongId) async {
+    String newPlaylistName = '';
+    return showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Create New Playlist'),
+          content: TextField(
+            onChanged: (value) {
+              newPlaylistName = value;
+            },
+            decoration: InputDecoration(
+              hintText: 'Enter playlist name',
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Cancel'),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            ),
+            TextButton(
+              child: Text('Create'),
+              onPressed: () {
+                if (newPlaylistName.isNotEmpty) {
+                  // Handle creating the new playlist
+                  Navigator.pop(context);
+                  _createNewPlaylist(newPlaylistName, SongId);
+                }
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _addToExistingPlaylist(playlist,SongId) async{
+    var reqbody = {"playlistId" : playlist['_id'],"songId":SongId};
+
+    var response = await http.post(
+      Uri.parse('$uri/user/addtoplaylist'),
+      headers: {
+        "Content-type": "application/json",
+      },
+      body: jsonEncode(reqbody),
+    );
+
+    if (response.statusCode == 201) {
+      Navigator.pop(context);
+    } else {
+      var res = jsonDecode(response.body);
+      print(res['error']);
+    }
+  }
+
+  void _createNewPlaylist(PlayListName, SongId) async {
+    var reqbody = {"playlistName": PlayListName, "userId": widget.user['_id'],"songId":SongId};
+
+    var response = await http.post(
+      Uri.parse('$uri/user/createplaylist'),
+      headers: {
+        "Content-type": "application/json",
+      },
+      body: jsonEncode(reqbody),
+    );
+
+    if (response.statusCode == 201) {
+      Navigator.pop(context);
+    } else {
+      var res = jsonDecode(response.body);
+      print(res['error']);
+    }
+  }
+
+  void _showBottomSheet(SongId) {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(20),
+              topRight: Radius.circular(20),
+            ),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                ListTile(
+                  leading: Icon(Icons.playlist_add),
+                  title: Text('Add to Playlist'),
+                  onTap: () {
+                    _showAddToPlaylistDialog(SongId);
+                  },
+                ),
+                ListTile(
+                  leading: Icon(Icons.favorite),
+                  title: Text('Add to Favorites'),
+                  onTap: () {
+                    // Add to favorites logic
+                    Navigator.pop(context);
+                  },
+                ),
+                ListTile(
+                  leading: Icon(Icons.share),
+                  title: Text('Share'),
+                  onTap: () {
+                    // Share logic
+                    Navigator.pop(context);
+                  },
+                ),
+                // Add more options as needed
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -82,7 +264,7 @@ class _MusicPageState extends State<MusicPage> {
     final arguments =
         ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>;
     final item = arguments['item'];
-   // isFavourite = arguments['isFavourite'] ?? false;
+    // isFavourite = arguments['isFavourite'] ?? false;
 
     return Container(
       decoration: BoxDecoration(
@@ -130,7 +312,9 @@ class _MusicPageState extends State<MusicPage> {
                         ),
                       ),
                       InkWell(
-                        onTap: () {},
+                        onTap: () {
+                          _showBottomSheet(item['_id']);
+                        },
                         child: Icon(
                           Icons.more_vert,
                           color: Colors.white,

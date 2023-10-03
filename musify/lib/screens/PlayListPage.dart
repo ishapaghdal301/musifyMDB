@@ -1,12 +1,46 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import '../db/config.dart';
+import 'dart:convert';
+import 'dart:math';
 
-class PlayListPage extends StatelessWidget {
+class PlayListPage extends StatefulWidget {
   final dynamic user;
-  const PlayListPage({super.key,required this.user});
+  const PlayListPage({super.key, required this.user});
+
+  @override
+  State<PlayListPage> createState() => _PlayListPageState();
+}
+
+class _PlayListPageState extends State<PlayListPage> {
+  List<dynamic> songs = [];
+
+  void shuffleSongs() {
+    print("hello");
+    final random = Random();
+    for (var i = songs.length - 1; i > 0; i--) {
+      final j = random.nextInt(i + 1);
+      final temp = songs[i];
+      songs[i] = songs[j];
+      songs[j] = temp;
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    shuffleSongs();
+  }
 
   @override
   Widget build(BuildContext context) {
+    final arguments =
+        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>;
+    final playlist = arguments['playlist'];
+    print(playlist);
+    songs = List.from(playlist['songs']);
+
     return Container(
       decoration: BoxDecoration(
           gradient: LinearGradient(
@@ -38,7 +72,7 @@ class PlayListPage extends StatelessWidget {
                         ),
                       ),
                       InkWell(
-                        onTap: () {},
+                        onTap: shuffleSongs,
                         child: Icon(
                           Icons.more_vert,
                           color: Color(0xff899ccf),
@@ -64,7 +98,7 @@ class PlayListPage extends StatelessWidget {
               ),
               Column(
                 children: [
-                  Text("Imagine Dragons",
+                  Text(playlist['playlistName'],
                       style: TextStyle(
                         color: Colors.white.withOpacity(0.9),
                         fontSize: 28,
@@ -73,11 +107,6 @@ class PlayListPage extends StatelessWidget {
                   SizedBox(
                     height: 8,
                   ),
-                  Text("Singer Name",
-                      style: TextStyle(
-                        color: Colors.white.withOpacity(0.8),
-                        fontSize: 18,
-                      )),
                 ],
               ),
               SizedBox(
@@ -151,89 +180,155 @@ class PlayListPage extends StatelessWidget {
                 ],
               ),
               SizedBox(height: 20),
-              for (int i = 1; i < 20 ; i++)
-          Container(
-            margin: EdgeInsets.only(top: 15, right: 15, left: 15),
-            padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
-            decoration: BoxDecoration(
-              color: Color(0xFF30314D),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Row(children: [
-               Text(i.toString(),
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w400,
-                  )),
-              const SizedBox(
-                width: 25,
-              ),
-              InkWell(
-                onTap: () {
-                  Navigator.pushNamed(context, "musicPage");
-                },
-                child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+              ...songs.map((song) {
+                return Container(
+                  margin: EdgeInsets.only(top: 15, right: 12, left: 5),
+                  padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+                  decoration: BoxDecoration(
+                    color: Color(0xFF30314D),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Row(
                     children: [
-                      Text(
-                        "Imagine Dagons - Believer",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 17,
-                          fontWeight: FontWeight.w500,
+                      InkWell(
+                        onTap: () async {
+                          var reqbody = {
+                            "songId": song['_id'],
+                            "userId": widget.user['_id'],
+                          };
+
+                          try {
+                            var response = await http.post(
+                              Uri.parse('$uri/user/isfavourite'),
+                              headers: {
+                                "Content-type": "application/json",
+                              },
+                              body: jsonEncode(reqbody),
+                            );
+
+                            if (response.statusCode == 201) {
+                              var res = jsonDecode(response.body);
+                              bool isFavourite = res['isFavourite'];
+
+                              Navigator.pushNamed(
+                                context,
+                                "musicPage",
+                                arguments: {
+                                  "item": song,
+                                  "isFavourite": isFavourite,
+                                },
+                              );
+                            } else {
+                              var res = jsonDecode(response.body);
+                              print(res['error']);
+                              // Handle the error case if needed.
+                            }
+                          } catch (error) {
+                            print("Error: $error");
+                            // Handle any unexpected errors here.
+                          }
+                        },
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(10),
+                          child: Image.network(
+                            song['imageUrl'],
+                            fit: BoxFit.cover,
+                            height: 60,
+                            width: 60,
+                          ),
                         ),
                       ),
-                      Row(
-                        children: [
-                          Text(
-                            "Bass",
-                            style: TextStyle(
-                              color: Colors.white.withOpacity(0.8),
-                              fontSize: 16,
-                            ),
-                          ),
-                          SizedBox(
-                            width: 5,
-                          ),
-                          Text(
-                            "-",
-                            style: TextStyle(
-                              color: Colors.white.withOpacity(0.6),
-                              fontSize: 25,
-                            ),
-                          ),
-                          SizedBox(
-                            width: 5,
-                          ),
-                          Text("04:30",
+                      const SizedBox(
+                        width: 25,
+                      ),
+                      GestureDetector(
+                        onTap: () async {
+                          var reqbody = {
+                            "songId": song['_id'],
+                            "userId": widget.user['_id'],
+                          };
+
+                          try {
+                            var response = await http.post(
+                              Uri.parse('$uri/user/isfavourite'),
+                              headers: {
+                                "Content-type": "application/json",
+                              },
+                              body: jsonEncode(reqbody),
+                            );
+
+                            if (response.statusCode == 201) {
+                              var res = jsonDecode(response.body);
+                              bool isFavourite = res['isFavourite'];
+
+                              Navigator.pushNamed(
+                                context,
+                                "musicPage",
+                                arguments: {
+                                  "item": song,
+                                  "isFavourite": isFavourite,
+                                },
+                              );
+                            } else {
+                              var res = jsonDecode(response.body);
+                              print(res['error']);
+                              // Handle the error case if needed.
+                            }
+                          } catch (error) {
+                            print("Error: $error");
+                            // Handle any unexpected errors here.
+                          }
+                        },
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "${song['title']}",
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
                               style: TextStyle(
-                                color: Colors.white.withOpacity(0.6),
+                                color: Colors.white,
+                                fontSize: 17,
                                 fontWeight: FontWeight.w500,
-                              ))
-                        ],
+                              ),
+                            ),
+                            Row(
+                              children: [
+                                Text(
+                                  "${song['singer']}",
+                                  style: TextStyle(
+                                    color: Colors.white.withOpacity(0.8),
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ],
+                            )
+                          ],
+                        ),
+                      ),
+                      Spacer(),
+                      Container(
+                        height: 35,
+                        width: 35,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        child: Icon(
+                          Icons.play_arrow,
+                          size: 25,
+                          color: Color(0xff31314f),
+                        ),
                       )
-                    ]),
+                    ],
+                  ),
+                );
+              }),
+              SizedBox(
+                height: 30,
               ),
-              Spacer(),
-              Container(
-                height: 35,
-                width: 35,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                child: Icon(
-                  Icons.play_arrow,
-                  size: 25,
-                  color: Color(0xff31314f),
-                ),
-              )
-            ]),
-          )
             ],
-           )
-          ),
+          )),
         ),
       ),
     );

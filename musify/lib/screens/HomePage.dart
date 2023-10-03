@@ -16,7 +16,7 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     // var username = user['username'];
     return DefaultTabController(
-      length: 6,
+      length: 5,
       child: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(

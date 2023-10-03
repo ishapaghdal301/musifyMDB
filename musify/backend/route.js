@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const User = require('./model/User');
 const Song = require('./model/Song');
+const PlayList = require('./model/Playlist');
 
 router.post("/register", async (req, res) => {
     try {
@@ -172,6 +173,78 @@ router.get('/trendingsongs', async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+router.post("/createplaylist", async (req, res) => {
+  const { playlistName, userId,songId } = req.body;
+  try {
+    const playlist = await PlayList.create({ playlistName, userId });
+    const song = await Song.findById(songId);
+    playlist.songs.push(song);
+    await playlist.save();
+    res.status(201).json({playlist : playlist});
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to create a new playlist' });
+  }
+});
+
+router.post("/addtoplaylist",  async (req, res) => {
+  const { playlistId, songId } = req.body;
+  // console.log(req.body);
+  try {
+    const playlist = await PlayList.findById(playlistId);
+    const song = await Song.findById(songId);
+
+    if (!playlist || !song) {
+      return res.status(404).json({ error: 'Playlist or song not found' });
+    }
+
+    playlist.songs.push(song);
+    await playlist.save();
+    res.status(201).json(playlist);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to add a song to the playlist' });
+  }
+});
+
+router.post("/fetchplaylist", async (req, res) => {
+  const { userId } = req.body;
+
+  try {
+    const playlists = await PlayList.find({ userId }).populate('songs');
+    res.status(201).json({playlists : playlists});
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch user playlists' });
+  }
+});
+
+router.post("/deleteplaylist",  async (req, res) => {
+  const { playlistId } = req.params;
+
+  try {
+    await PlayList.findByIdAndRemove(playlistId);
+    res.status(204).end();
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to delete the playlist' });
+  }
+});
+
+router.post("/deletesong", async (req, res) => {
+  const { playlistId, songId } = req.body;
+
+  try {
+    const playlist = await PlayList.findById(playlistId);
+
+    if (!playlist) {
+      return res.status(404).json({ error: 'Playlist not found' });
+    }
+
+    playlist.songs.pull(songId);
+    await playlist.save();
+    res.status(200).json(playlist);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to remove the song from the playlist' });
   }
 });
 
