@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'home_screen.dart';
 import 'signup_screen.dart';
 import '../db/config.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'dart:convert'; // Keep this import for JSON encoding/decoding.
 
@@ -119,6 +120,12 @@ class _SignInScreenState extends State<SignInScreen> {
                         if (response.statusCode == 201) {
                           var res = jsonDecode(response.body);
                           print(res['user']);
+
+                           String userJson = jsonEncode(res['user']);
+                          SharedPreferences prefs =
+                              await SharedPreferences.getInstance();
+                          prefs.setString('token', userJson);
+
                           Navigator.push(
                             context,
                             MaterialPageRoute(
